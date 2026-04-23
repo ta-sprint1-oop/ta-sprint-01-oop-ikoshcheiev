@@ -23,9 +23,10 @@ class NotificationTest {
     @Test
     @DisplayName("Test EmailNotification full flow and logic")
     void testEmailNotification() throws NotDeliverableException {
-        EmailNotification email = new EmailNotification(VALID_EMAIL, "Your order #12345 has been shipped!", 5, VALID_SENDER, "Order Update", false);
+        EmailNotification email = new EmailNotification(VALID_EMAIL, "Your order #12345 has been shipped!",
+                5, VALID_SENDER, "Order Update", false);
         assertEquals(NotificationStatus.PENDING, email.getStatus());
-        
+
         assertTrue(email.isDeliverable());
         assertFalse(email.isSpam());
         assertEquals("Subject: Order Update\nYour order #12345 has been shipped!", email.getFormattedMessage());
@@ -34,15 +35,17 @@ class NotificationTest {
 
         email.send();
         assertEquals(NotificationStatus.SENT, email.getStatus());
-        
-        EmailNotification spam = new EmailNotification(VALID_EMAIL, "Claim your prize immediately!", 3, "spammer@bad.net", "You WON a FREE gift, CLICK here", false);
+
+        EmailNotification spam = new EmailNotification(VALID_EMAIL, "Claim your prize immediately!", 3,
+                "spammer@bad.net", "You WON a FREE gift, CLICK here", false);
         assertTrue(spam.isSpam());
         assertFalse(spam.isHighPriority());
 
         // Test delivery failures
         EmailNotification noAt = new EmailNotification("invalid-email-no-at", "Msg", 1, VALID_SENDER, "Sub", false);
         assertFalse(noAt.isDeliverable());
-        EmailNotification noDot = new EmailNotification("user@domain-no-dot", "Msg", 1, VALID_SENDER, "Sub", false);
+        EmailNotification noDot = new EmailNotification("user@domain-no-dot", "Msg", 1,
+                VALID_SENDER, "Sub", false);
         assertFalse(noDot.isDeliverable());
 
         assertThrows(NotDeliverableException.class, noAt::send);
@@ -53,7 +56,7 @@ class NotificationTest {
     @DisplayName("Test SmsNotification full flow and logic")
     void testSmsNotification() throws NotDeliverableException {
         SmsNotification sms = new SmsNotification("Alice Smith", "Your verification code is 5566", 4, VALID_PHONE, false);
-        
+
         assertTrue(sms.isDeliverable());
         assertFalse(sms.isOverLimit());
         assertEquals("Your verification code is 5566", sms.getFormattedMessage());
@@ -83,7 +86,7 @@ class NotificationTest {
     @DisplayName("Test PushNotification full flow and logic")
     void testPushNotification() throws NotDeliverableException {
         PushNotification push = new PushNotification("Mobile App User", "New message from Sarah", 3, VALID_TOKEN, "https://example.com/icons/msg.png");
-        
+
         assertTrue(push.isDeliverable());
         assertFalse(push.isSilent());
         assertEquals("🔔 New message from Sarah", push.getFormattedMessage());
